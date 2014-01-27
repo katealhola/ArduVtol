@@ -9,7 +9,7 @@
 // called at 10hz
 static void arm_motors()
 {
-    static int16_t arming_counter;
+  static int16_t arming_counter;
 
     // don't allow arming/disarming in anything but manual
     if (g.rc_3.control_in > 0) {

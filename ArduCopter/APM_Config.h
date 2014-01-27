@@ -5,7 +5,7 @@
 #define CONFIG_APM_HARDWARE APM_HARDWARE_APM2
 
 // Ordinary users should please ignore the following define.
-// APM2_BETA_HARDWARE is used to support early (September-October 2011) APM2l
+// APM2_BETA_HARDWARE is used to support early (September-October 2011) APM2
 // hardware which had the BMP085 barometer onboard. Only a handful of
 // developers have these boards.
 //#define APM2_BETA_HARDWARE
@@ -15,23 +15,21 @@
 //#define DMP_ENABLED ENABLED
 //#define SECONDARY_DMP_ENABLED ENABLED       // allows running DMP in parallel with DCM for testing purposes
 
-// Aux servo functions
-//#define MOUNT         ENABLED
-
-#define FRAME_CONFIG QUAD_FRAME
+#define FRAME_CONFIG TRI_VTOL_FRAME
 /*  options:
  *  QUAD_FRAME
  *  TRI_FRAME
+ *  TRI_VTOL_FRAME
  *  HEXA_FRAME
  *  Y6_FRAME
  *  OCTA_FRAME
- *  OCTA_QUAD_FRAME                  1§  
+ *  OCTA_QUAD_FRAME
  *  HELI_FRAME
  */
 
-#define FRAME_ORIENTATION X_FRAME
+//#define FRAME_ORIENTATION X_FRAME
 /*
- *  PLUS_FRAMEcon
+ *  PLUS_FRAME
  *  X_FRAME
  *  V_FRAME
  */

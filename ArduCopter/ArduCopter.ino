@@ -91,6 +91,7 @@
 #include <AP_Motors.h>          // AP Motors library
 #include <AP_MotorsQuad.h>      // AP Motors library for Quad
 #include <AP_MotorsTri.h>       // AP Motors library for Tri
+#include <AP_MotorsTriVTOL.h>   // AP Motors library for Tri VTOL
 #include <AP_MotorsHexa.h>      // AP Motors library for Hexa
 #include <AP_MotorsY6.h>        // AP Motors library for Y6
 #include <AP_MotorsOcta.h>      // AP Motors library for Octa
@@ -453,6 +454,9 @@ static uint8_t receiver_rssi;
 #if FRAME_CONFIG == TRI_FRAME
  #define MOTOR_CLASS AP_MotorsTri
 #endif
+#if FRAME_CONFIG == TRI_VTOL_FRAME
+ #define MOTOR_CLASS AP_MotorsTriVTOL
+#endif
 #if FRAME_CONFIG == HEXA_FRAME
  #define MOTOR_CLASS AP_MotorsHexa
 #endif
@@ -473,6 +477,8 @@ static uint8_t receiver_rssi;
 MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_8, &g.heli_servo_1, &g.heli_servo_2, &g.heli_servo_3, &g.heli_servo_4);
 #elif FRAME_CONFIG == TRI_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
 MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7);
+#elif FRAME_CONFIG == TRI_VTOL_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
+MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7,&g.rc_6 );
 #else
 MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 #endif

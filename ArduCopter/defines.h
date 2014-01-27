@@ -76,6 +76,7 @@
 #define OCTA_FRAME 4
 #define HELI_FRAME 5
 #define OCTA_QUAD_FRAME 6
+#define TRI_VTOL_FRAME 7
 
 #define PLUS_FRAME 0
 #define X_FRAME 1

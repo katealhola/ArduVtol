@@ -381,10 +381,17 @@ static void NOINLINE send_servo_out(mavlink_channel_t chan)
         g.rc_2.servo_out,
         g.rc_3.radio_out,
         g.rc_4.servo_out,
+        #if 0
         10000 * g.rc_1.norm_output(),
         10000 * g.rc_2.norm_output(),
         10000 * g.rc_3.norm_output(),
         10000 * g.rc_4.norm_output(),
+        #else
+        g.rc_5.servo_out,
+        g.rc_6.servo_out,
+        g.rc_7.radio_out,
+        g.rc_8.servo_out,
+        #endif
         receiver_rssi);
  #endif
 #endif
