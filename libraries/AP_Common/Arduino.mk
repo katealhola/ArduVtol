@@ -233,7 +233,7 @@ OPTFLAGS		=	-Os -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-str
 DEPFLAGS		=	-MD -MT $@
 
 # XXX warning options TBD
-CXXOPTS			= 	-mcall-prologues -ffunction-sections -fdata-sections -fno-exceptions
+CXXOPTS			= 	-mcall-prologues -ffunction-sections -fdata-sections -fno-exceptions -fpermissive
 COPTS			=	-mcall-prologues -ffunction-sections -fdata-sections
 ASOPTS			=	
 LISTOPTS		=	-adhlns=$(@:.o=.lst)
