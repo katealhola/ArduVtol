@@ -1173,5 +1173,104 @@
 #ifndef INERTIAL_NAV_Z
  # define INERTIAL_NAV_Z ENABLED
 #endif
+// VTOL experimental stuff 
+//////////////////////////////////////////////////////////////////////////////
+// Autopilot control limits
+//
+#ifndef HEAD_MAX
+ # define HEAD_MAX                               45
+#endif
+#ifndef PITCH_MAX
+ # define PITCH_MAX                              15
+#endif
+#ifndef PITCH_MIN
+ # define PITCH_MIN                              -25
+#endif
+#define HEAD_MAX_CENTIDEGREE HEAD_MAX * 100
+#define PITCH_MAX_CENTIDEGREE PITCH_MAX * 100
+#define PITCH_MIN_CENTIDEGREE PITCH_MIN * 100
+//////////////////////////////////////////////////////////////////////////////
+// AIRSPEED_CRUISE
+//
+#ifndef AIRSPEED_CRUISE
+ # define AIRSPEED_CRUISE                12 // 12 m/s
+#endif
+#define AIRSPEED_CRUISE_CM AIRSPEED_CRUISE*100
+#ifndef SCALING_SPEED
+ # define SCALING_SPEED          15.0
+#endif
+#ifndef P_TO_T
+ # define P_TO_T               0
+#endif
+#ifndef T_TO_P
+ # define T_TO_P               0
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Attitude control gains
+//
+#ifndef SERVO_ROLL_P
+ # define SERVO_ROLL_P         0.4
+#endif
+#ifndef SERVO_ROLL_I
+ # define SERVO_ROLL_I         0.0
+#endif
+#ifndef SERVO_ROLL_D
+ # define SERVO_ROLL_D         0.0
+#endif
+#ifndef SERVO_ROLL_INT_MAX
+ # define SERVO_ROLL_INT_MAX   5
+#endif
+#define SERVO_ROLL_INT_MAX_CENTIDEGREE SERVO_ROLL_INT_MAX*100
+#ifndef ROLL_SLEW_LIMIT
+ # define ROLL_SLEW_LIMIT      0
+#endif
+#ifndef SERVO_PITCH_P
+ # define SERVO_PITCH_P        0.6
+#endif
+#ifndef SERVO_PITCH_I
+ # define SERVO_PITCH_I        0.0
+#endif
+#ifndef SERVO_PITCH_D
+ # define SERVO_PITCH_D        0.0
+#endif
+#ifndef SERVO_PITCH_INT_MAX
+ # define SERVO_PITCH_INT_MAX  5
+#endif
+#define SERVO_PITCH_INT_MAX_CENTIDEGREE SERVO_PITCH_INT_MAX*100
+#ifndef PITCH_COMP
+ # define PITCH_COMP           0.2
+#endif
+#ifndef SERVO_YAW_P
+ # define SERVO_YAW_P          0.0
+#endif
+#ifndef SERVO_YAW_I
+ # define SERVO_YAW_I          0.0
+#endif
+#ifndef SERVO_YAW_D
+ # define SERVO_YAW_D          0.0
+#endif
+#ifndef SERVO_YAW_INT_MAX
+ # define SERVO_YAW_INT_MAX    0
+#endif
+#ifndef RUDDER_MIX
+ # define RUDDER_MIX           0.5
+#endif
+//////////////////////////////////////////////////////////////////////////////
+// ENABLE ELEVON_MIXING
+//
+#ifndef ELEVON_MIXING
+ # define ELEVON_MIXING          DISABLED
+#endif
+#ifndef ELEVON_REVERSE
+ # define ELEVON_REVERSE     DISABLED
+#endif
+#ifndef ELEVON_CH1_REVERSE
+ # define ELEVON_CH1_REVERSE     DISABLED
+#endif
+#ifndef ELEVON_CH2_REVERSE
+ # define ELEVON_CH2_REVERSE     DISABLED
+#endif
+
 
 #endif // __ARDUCOPTER_CONFIG_H__

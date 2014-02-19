@@ -48,10 +48,17 @@ static void init_rc_in()
     rc_ch[CH_8] = &g.rc_8;
 
     //set auxiliary ranges
+#if 1
+   g.rc_5.set_angle(4500);
+   g.rc_6.set_angle(4500);
+   g.rc_7.set_angle(4500);
+   g.rc_8.set_angle(4500);
+#else
     g.rc_5.set_range(0,1000);
     g.rc_6.set_range(0,1000);
     g.rc_7.set_range(0,1000);
     g.rc_8.set_range(0,1000);
+#endif
 
 #if MOUNT == ENABLED
     update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8, &g.rc_10, &g.rc_11);

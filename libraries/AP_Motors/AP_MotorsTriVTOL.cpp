@@ -40,6 +40,8 @@ void AP_MotorsTriVTOL::enable()
     _rc->enable_out(_motor_to_channel_map[AP_MOTORS_MOT_4]);
     _rc->enable_out(AP_MOTORS_CH_TRI_YAW);
     _rc->enable_out(AP_MOTORS_CH_TRI_TILT);
+    _rc->enable_out(AP_MOTORS_CH_VTOL_ELEV);
+    _rc->enable_out(AP_MOTORS_CH_VTOL_AILE);
 }
 
 // output_min - sends minimum values out to the motors
@@ -54,8 +56,8 @@ void AP_MotorsTriVTOL::output_min()
     _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_MOT_1], _rc_throttle->radio_min);
     _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_MOT_2], _rc_throttle->radio_min);
     _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_MOT_4], _rc_throttle->radio_min);
-    _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_CH_TRI_YAW], _rc_yaw->radio_trim);
-    _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_CH_TRI_TILT], _rc_yaw->radio_trim);
+    //    _rc->OutputCh(_motor_to_channel_map[AP_MOTORS_CH_TRI_YAW], _rc_yaw->radio_trim);
+    //_rc->OutputCh(_motor_to_channel_map[AP_MOTORS_CH_TRI_TILT], _rc_yaw->radio_trim);
 }
 
 // output_armed - sends commands to the motors
@@ -74,8 +76,6 @@ void AP_MotorsTriVTOL::output_armed()
     _rc_roll->calc_pwm();
     _rc_pitch->calc_pwm();
     _rc_throttle->calc_pwm();
-    _rc_yaw->calc_pwm();
-    _rc_tilt->calc_pwm();
 
     int roll_out            = (float)_rc_roll->pwm_out * .866;
     int pitch_out           = _rc_pitch->pwm_out / 2;
@@ -143,10 +143,28 @@ void AP_MotorsTriVTOL::output_armed()
         _rc->OutputCh(AP_MOTORS_CH_TRI_YAW, _rc_yaw->radio_out);
 	motor_out[AP_MOTORS_CH_TRI_YAW]=_rc_yaw->radio_out;
     }
- motor_out[AP_MOTORS_CH_TRI_TILT]= _rc_tilt->radio_in;
- _rc->OutputCh(AP_MOTORS_CH_TRI_TILT,motor_out[AP_MOTORS_CH_TRI_TILT]);
+    output_servos();
+
  // static char r;
  //  if(!(r++&15))gcs_send_text_fmt(PSTR("motors %d %d %d %d\n"),motor_out[AP_MOTORS_MOT_1],motor_out[AP_MOTORS_MOT_2],motor_out[AP_MOTORS_MOT_4],motor_out[AP_MOTORS_CH_TRI_TILT],motor_out[AP_MOTORS_CH_TRI_YAW]);
+}
+
+// Output servo channels 
+
+void AP_MotorsTriVTOL::output_servos()
+{
+    _rc_yaw->calc_pwm();
+    _rc_tilt->calc_pwm();
+    _rc_elev->calc_pwm();
+    _rc_aile->calc_pwm();
+
+    motor_out[AP_MOTORS_CH_TRI_TILT]= _rc_aile->radio_in; // RC5in=mode, RC5out=pitch, RC6out=aile,RC8out=elev
+    motor_out[AP_MOTORS_CH_VTOL_AILE]= _rc_aile->radio_out;
+    motor_out[AP_MOTORS_CH_VTOL_ELEV]= _rc_elev->radio_out;
+    
+ _rc->OutputCh(AP_MOTORS_CH_TRI_TILT,motor_out[AP_MOTORS_CH_TRI_TILT]);
+ _rc->OutputCh(AP_MOTORS_CH_VTOL_AILE,motor_out[AP_MOTORS_CH_VTOL_AILE]);
+ _rc->OutputCh(AP_MOTORS_CH_VTOL_ELEV,motor_out[AP_MOTORS_CH_VTOL_ELEV]);
 }
 
 // output_disarmed - sends commands to the motors
@@ -162,7 +180,7 @@ void AP_MotorsTriVTOL::output_disarmed()
     for (unsigned char i = AP_MOTORS_MOT_1; i < AP_MOTORS_MOT_4; i++) {
         motor_out[i] = _rc_throttle->radio_min;
     }
-
+    output_servos();
     // Send minimum values to all motors
     output_min();
 }

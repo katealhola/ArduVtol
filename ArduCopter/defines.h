@@ -138,7 +138,10 @@
                                         // sensor
 #define TOY_A 11                        // THOR Enum for Toy mode
 #define TOY_M 12                        // THOR Enum for Toy mode
-#define NUM_MODES 13
+#define FLY_BY_WIRE_A 14                // 
+#define FLY_BY_WIRE_B 15                
+#define MANUAL ACRO                     // For VTOL aircraft mode Manual eqals Acro as multicopter 
+#define NUM_MODES 16
 
 // CH_6 Tuning
 // -----------
@@ -450,6 +453,8 @@ enum gcs_severity {
 #define ERROR_CODE_FAILSAFE_BATTERY   3
 #define ERROR_CODE_FAILSAFE_WATCHDOG  4
 
+#define BOOL_TO_SIGN(bvalue) ((bvalue) ? -1 : 1)
+#define SERVO_MAX 4500  // This value represents 45 degrees and is just an
 
 
 #endif // _DEFINES_H

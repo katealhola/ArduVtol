@@ -559,6 +559,11 @@ const AP_Param::Info var_info[] PROGMEM = {
     GGROUP(pid_optflow_roll,  "OF_RLL_",   AC_PID),
     GGROUP(pid_optflow_pitch, "OF_PIT_",   AC_PID),
 
+// VTOL airplane controlls
+	GGROUP(pidServoRoll,            "RLL2SRV_",   AC_PID),
+	GGROUP(pidServoPitch,           "PTCH2SRV_",  AC_PID),
+
+
     // PI controller
     //--------------
     GGROUP(pi_stabilize_roll,       "STB_RLL_", APM_PI),
@@ -633,6 +638,127 @@ const AP_Param::Info var_info[] PROGMEM = {
 #else
     GOBJECT(motors, "MOT_",         AP_Motors),
 #endif
+
+
+//*****************  Experimental VTOL ********************
+
+
+ // @Param: LIM_ROLL_CD
+    // @DisplayName: Maximum Bank Angle
+    // @Description: The maximum commanded bank angle in either direction
+    // @Units: centi-Degrees
+    // @Range: 0 9000
+    // @Increment: 1
+    // @User: Standard
+    GSCALAR(roll_limit_cd,          "LIM_ROLL_CD",    HEAD_MAX_CENTIDEGREE),
+
+    // @Param: LIM_PITCH_MAX
+    // @DisplayName: Maximum Pitch Angle
+    // @Description: The maximum commanded pitch up angle
+    // @Units: centi-Degrees
+    // @Range: 0 9000
+    // @Increment: 1
+    // @User: Standard
+    GSCALAR(pitch_limit_max_cd,     "LIM_PITCH_MAX",  PITCH_MAX_CENTIDEGREE),
+
+    // @Param: LIM_PITCH_MIN
+    // @DisplayName: Minimum Pitch Angle
+    // @Description: The minimum commanded pitch down angle
+    // @Units: centi-Degrees
+    // @Range: -9000 0
+    // @Increment: 1
+    // @User: Standard
+    GSCALAR(pitch_limit_min_cd,     "LIM_PITCH_MIN",  PITCH_MIN_CENTIDEGREE),
+   // @Param: MIX_MODE
+    // @DisplayName: Elevon mixing
+    // @Description: Enable elevon mixing
+    // @Values: 0:Disabled,1:Enabled
+    // @User: User
+    GSCALAR(mix_mode,               "ELEVON_MIXING",  ELEVON_MIXING),
+
+    // @Param: ELEVON_REVERSE
+    // @DisplayName: Elevon reverse
+    // @Description: Reverse elevon mixing
+    // @Values: 0:Disabled,1:Enabled
+    // @User: User
+    GSCALAR(reverse_elevons,        "ELEVON_REVERSE", ELEVON_REVERSE),
+
+
+    // @Param: ELEVON_CH1_REV
+    // @DisplayName: Elevon reverse
+    // @Description: Reverse elevon channel 1
+    // @Values: -1:Disabled,1:Enabled
+    // @User: User
+    GSCALAR(reverse_ch1_elevon,     "ELEVON_CH1_REV", ELEVON_CH1_REVERSE),
+
+    // @Param: ELEVON_CH2_REV
+    // @DisplayName: Elevon reverse
+    // @Description: Reverse elevon channel 2
+    // @Values: -1:Disabled,1:Enabled
+    // @User: User
+    GSCALAR(reverse_ch2_elevon,     "ELEVON_CH2_REV", ELEVON_CH2_REVERSE),
+    // @Param: TRIM_ARSPD_CM
+    // @DisplayName: Target airspeed
+    // @Description: Airspeed in cm/s to aim for when airspeed is enabled in auto mode
+    // @Units: cm/s
+    // @User: User
+    GSCALAR(airspeed_cruise_cm,     "TRIM_ARSPD_CM",  AIRSPEED_CRUISE_CM),
+
+    // @Param: SCALING_SPEED
+    // @DisplayName: speed used for speed scaling calculations
+    // @Description: Airspeed in m/s to use when calculating surface speed scaling. Note that changing this value will affect all PID values
+    // @Units: m/s
+    // @User: Advanced
+    GSCALAR(scaling_speed,        "SCALING_SPEED",    SCALING_SPEED),
+  // @Param: KFF_PTCHCOMP
+    // @DisplayName: Pitch Compensation
+    // @Description: Adds pitch input to compensate for the loss of lift due to roll control. 0 = 0 %, 1 = 100%
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Advanced
+    GSCALAR(kff_pitch_compensation, "KFF_PTCHCOMP",   PITCH_COMP),
+
+    // @Param: KFF_RDDRMIX
+    // @DisplayName: Rudder Mix
+    // @Description: The amount of rudder mix to apply during aileron movement 0 = 0 %, 1 = 100%
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Standard
+    GSCALAR(kff_rudder_mix,         "KFF_RDDRMIX",    RUDDER_MIX),
+
+    // @Param: KFF_PTCH2THR
+    // @DisplayName: Pitch to Throttle Mix
+    // @Description: Pitch to throttle feed-forward gain.
+    // @Range: 0 5
+    // @Increment: 0.01
+    // @User: Advanced
+    GSCALAR(kff_pitch_to_throttle,  "KFF_PTCH2THR",   P_TO_T),
+
+    // @Param: KFF_THR2PTCH
+    // @DisplayName: Throttle to Pitch Mix
+    // @Description: Throttle to pitch feed-forward gain.
+    // @Range: 0 5
+    // @Increment: 0.01
+    // @User: Advanced
+    GSCALAR(kff_throttle_to_pitch,  "KFF_THR2PTCH",   T_TO_P),
+        // @Param: STICK_MIXING
+    // @DisplayName: Stick Mixing
+    // @Description: When enabled, this adds user stick input to the control surfaces in auto modes, allowing the user to have some degree of flight control without changing modes
+    // @Values: 0:Disabled,1:Enabled
+    // @User: Advanced
+    GSCALAR(stick_mixing,           "STICK_MIXING",   1),
+        // @Param: TRIM_ARSPD_CM
+    // @DisplayName: Target airspeed
+    // @Description: Airspeed in cm/s to aim for when airspeed is enabled in auto mode
+    // @Units: cm/s
+    // @User: User
+    GSCALAR(airspeed_cruise_cm,     "TRIM_ARSPD_CM",  AIRSPEED_CRUISE_CM),
+   // @Param: TRIM_PITCH_CD
+    // @DisplayName: Pitch angle offset
+    // @Description: offset to add to pitch - used for trimming tail draggers
+    // @Units: centi-Degrees
+    // @User: Advanced
+    GSCALAR(pitch_trim_cd,        "TRIM_PITCH_CD",  0),
 
     AP_VAREND
 };

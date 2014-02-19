@@ -478,7 +478,7 @@ MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.r
 #elif FRAME_CONFIG == TRI_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
 MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7);
 #elif FRAME_CONFIG == TRI_VTOL_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
-MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7,&g.rc_6 );
+MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7,&g.rc_5,&g.rc_6,&g.rc_8 );
 #else
 MOTOR_CLASS motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 #endif
@@ -780,6 +780,21 @@ static int32_t of_roll;
 // The Commanded pitch from the autopilot based on optical flow sensor. negative Pitch means go forward.
 static int32_t of_pitch;
 
+////////////////////////////////////////////////////////////////////////////////
+// Navigation control variables for VTOL
+////////////////////////////////////////////////////////////////////////////////
+// The instantaneous desired bank angle.  Hundredths of a degree
+static int32_t nav_roll_cd;
+
+// The instantaneous desired pitch angle.  Hundredths of a degree
+static int32_t nav_pitch_cd;
+
+// This is used to enable the inverted flight feature
+bool inverted_flight     = false;
+// These are trim values used for elevon control
+// For elevons radio_in[CH_ROLL] and radio_in[CH_PITCH] are equivalent aileron and elevator, not left and right elevon
+static uint16_t elevon1_trim  = 1500;
+static uint16_t elevon2_trim  = 1500;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Navigation Throttle control
@@ -1080,7 +1095,13 @@ static void fast_loop()
 
     // update targets to rate controllers
     update_rate_contoller_targets();
+ 
+    // For VTOL
+    stabilize();
 
+    // Calculateb out the servo PWM values
+    // ------------------------------
+    set_servos();
     // agmatthews - USERHOOKS
 #ifdef USERHOOK_FASTLOOP
     USERHOOK_FASTLOOP
@@ -2309,4 +2330,195 @@ static void tuning(){
         break;
     }
 }
+
+/*================================================================
+!
+!  VTOL Merge from Arduplane
+!
+\=================================================================*/
+
+//        control_roll            = g.rc_1.control_in;
+//        control_pitch           = g.rc_2.control_in;
+static void update_current_flight_mode(void)
+{
+#if 0   // No VTOL AUTO modes yet
+  if(control_mode == AUTO) {
+        crash_checker();
+
+        switch(nav_command_ID) {
+        case MAV_CMD_NAV_TAKEOFF:
+            if (hold_course != -1 && g.rudder_steer == 0) {
+                calc_nav_roll();
+            } else {
+                nav_roll_cd = 0;
+            }
+
+            if (alt_control_airspeed()) {
+                calc_nav_pitch();
+                if (nav_pitch_cd < takeoff_pitch_cd)
+                    nav_pitch_cd = takeoff_pitch_cd;
+            } else {
+                nav_pitch_cd = (g_gps->ground_speed / (float)g.airspeed_cruise_cm) * takeoff_pitch_cd;
+                nav_pitch_cd = constrain(nav_pitch_cd, 500, takeoff_pitch_cd);
+            }
+
+//#if APM_CONTROL == DISABLED
+#if 1
+            float aspeed;
+            if (ahrs.airspeed_estimate(&aspeed)) {
+                // don't use a pitch/roll integrators during takeoff if we are
+                // below minimum speed
+                if (aspeed < g.flybywire_airspeed_min) {
+                    g.pidServoPitch.reset_I();
+                    g.pidServoRoll.reset_I();
+                }
+            }
+#endif
+
+            // max throttle for takeoff
+            g.channel_throttle.servo_out = g.throttle_max;
+
+            break;
+
+        case MAV_CMD_NAV_LAND:
+            if (g.rudder_steer == 0 || !land_complete) {
+                calc_nav_roll();
+            } else {
+                nav_roll_cd = 0;
+            }
+
+            if (land_complete) {
+                // hold pitch constant in final approach
+                nav_pitch_cd = g.land_pitch_cd;
+            } else {
+                calc_nav_pitch();
+                if (!alt_control_airspeed()) {
+                    // when not under airspeed control, don't allow
+                    // down pitch in landing
+                    nav_pitch_cd = constrain(nav_pitch_cd, 0, nav_pitch_cd);
+                }
+            }
+            calc_throttle();
+
+            if (land_complete) {
+                // we are in the final stage of a landing - force
+                // zero throttle
+                g.channel_throttle.servo_out = 0;
+            }
+            break;
+
+        default:
+            // we are doing normal AUTO flight, the special cases
+            // are for takeoff and landing
+            hold_course = -1;
+            land_complete = false;
+#if 0    
+            calc_nav_roll();
+            calc_nav_pitch();
+            calc_throttle();
+#endif            
+            break;
+        }
+    }else{
+#endif // Auto modes
+        // hold_course is only used in takeoff and landing
+        //hold_course = -1;
+
+        switch(control_mode) {
+        case RTL:
+        case LOITER:
+  
+        case GUIDED:
+#if 0
+            crash_checker();
+            calc_nav_roll();
+            calc_nav_pitch();
+            calc_throttle();
+#endif            
+            break;
+
+        case FLY_BY_WIRE_A: {
+            // set nav_roll and nav_pitch using sticks
+            nav_roll_cd  = g.channel_roll.norm_input() * g.roll_limit_cd;
+            float pitch_input = g.channel_pitch.norm_input();
+            if (pitch_input > 0) {
+                nav_pitch_cd = pitch_input * g.pitch_limit_max_cd;
+            } else {
+                nav_pitch_cd = -(pitch_input * g.pitch_limit_min_cd);
+            }
+            nav_pitch_cd = constrain(nav_pitch_cd, g.pitch_limit_min_cd.get(), g.pitch_limit_max_cd.get());
+#if 0
+if (inverted_flight) {
+                nav_pitch_cd = -nav_pitch_cd;
+            }
+#endif
+            break;
+
+        }
+#if 0
+        case FLY_BY_WIRE_B:
+            // Substitute stick inputs for Navigation control output
+            // We use g.pitch_limit_min because its magnitude is
+            // normally greater than g.pitch_limit_max
+
+            // Thanks to Yury MonZon for the altitude limit code!
+
+            nav_roll_cd = g.channel_roll.norm_input() * g.roll_limit_cd;
+
+            float elevator_input;
+            elevator_input = g.channel_pitch.norm_input();
+
+            if (g.flybywire_elev_reverse) {
+                elevator_input = -elevator_input;
+            }
+            if ((adjusted_altitude_cm() >= home.alt+g.FBWB_min_altitude_cm) || (g.FBWB_min_altitude_cm == 0)) {
+                altitude_error_cm = elevator_input * g.pitch_limit_min_cd;
+            } else {
+                altitude_error_cm = (home.alt + g.FBWB_min_altitude_cm) - adjusted_altitude_cm();
+                if (elevator_input < 0) {
+                    altitude_error_cm += elevator_input * g.pitch_limit_min_cd;
+                }
+            }
+            calc_throttle();
+            calc_nav_pitch();
+            break;
+#endif
+        case STABILIZE:
+            nav_roll_cd        = 0;
+            nav_pitch_cd       = 0;
+            // throttle is passthrough
+            break;
+#if 0
+        case CIRCLE:
+            // we have no GPS installed and have lost radio contact
+            // or we just want to fly around in a gentle circle w/o GPS
+            // ----------------------------------------------------
+            nav_roll_cd  = g.roll_limit_cd / 3;
+            nav_pitch_cd = 0;
+
+            if (failsafe != FAILSAFE_NONE) {
+                g.channel_throttle.servo_out = g.throttle_cruise;
+            }
+            break;
+#endif
+        case MANUAL:
+            // servo_out is for Sim control only
+            // ---------------------------------
+            g.channel_roll_out.servo_out = g.channel_roll.pwm_to_angle();
+            g.channel_pitch_out.servo_out = g.channel_pitch.pwm_to_angle();
+#if 0 // No Rudder Yet
+            g.channel_rudder_out.servo_out = g.channel_rudder.pwm_to_angle();
+#endif
+            break;
+            //roll: -13788.000,  pitch: -13698.000,   thr: 0.000, rud: -13742.000
+#if 0
+        case INITIALISING:
+#endif
+        case AUTO:
+            // handled elsewhere
+            break;
+        }
+ //   }// Auto modes
+}
+/*===============================================================*/
 

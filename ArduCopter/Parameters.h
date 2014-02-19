@@ -111,6 +111,34 @@ public:
         k_param_sysid_my_gcs,
         k_param_serial3_baud,
         k_param_telem_delay,
+        
+        // VTOL Experimental Params just here for address space
+    //
+        // 120: Navigation parameters
+        //
+        k_param_crosstrack_entry_angle= 120,
+        k_param_roll_limit_cd,
+        k_param_pitch_limit_max_cd,
+        k_param_pitch_limit_min_cd,
+        k_param_airspeed_cruise_cm,
+        k_param_RTL_altitude_cm,
+        k_param_inverted_flight_ch,
+        k_param_min_gndspeed_cm,
+        k_param_crosstrack_use_wind,
+        k_param_mix_mode,
+        k_param_reverse_elevons,
+        k_param_reverse_ch1_elevon,
+        k_param_reverse_ch2_elevon,
+        //  Feed-forward gains
+        //
+        k_param_kff_pitch_compensation = 200,
+        k_param_kff_rudder_mix,
+        k_param_kff_pitch_to_throttle,
+        k_param_kff_throttle_to_pitch,
+        k_param_scaling_speed,
+        k_param_stick_mixing, 
+        k_param_pitch_trim_cd,
+        // End of Experimental VTOL stuff
 
         //
         // 140: Sensor parameters
@@ -234,6 +262,8 @@ public:
         k_param_acro_balance_roll,      // scalar (not PID)
         k_param_acro_balance_pitch,     // scalar (not PID)
         k_param_pid_throttle_accel, // 241
+        k_param_pidServoRoll,
+        k_param_pidServoPitch,
 
         // 254,255: reserved
     };
@@ -312,6 +342,32 @@ public:
     AP_Int8         flight_mode6;
     AP_Int8         simple_modes;
 
+
+// VTOL *****************************************
+  // Navigational maneuvering limits
+    //
+    AP_Int16 roll_limit_cd;
+    AP_Int16 pitch_limit_max_cd;
+    AP_Int16 pitch_limit_min_cd;
+   
+    AP_Int8 auto_trim;
+    AP_Int8 mix_mode;
+    AP_Int8 reverse_elevons;
+    AP_Int8 reverse_ch1_elevon;
+    AP_Int8 reverse_ch2_elevon;
+ // speed used for speed scaling
+    AP_Float scaling_speed;
+      
+    // Feed-forward gains
+    //
+    AP_Float kff_pitch_compensation;
+    AP_Float kff_rudder_mix;
+    AP_Float kff_pitch_to_throttle;
+    AP_Float kff_throttle_to_pitch;
+    AP_Int8 stick_mixing;
+    AP_Int32 airspeed_cruise_cm;
+    AP_Int16 pitch_trim_cd;
+//*********************************************    
     // Misc
     //
     AP_Int16        log_bitmask;
@@ -347,6 +403,16 @@ public:
     RC_Channel_aux          rc_7;
     RC_Channel_aux          rc_8;
 
+#define channel_roll rc_1
+#define channel_pitch rc_2
+#define channel_throttle rc_3
+#define channel_rudder rc_4
+#define channel_tilt_out rc5
+#define channel_roll_out rc_6
+#define channel_throttle_out rc_7
+#define channel_pitch_out rc_8
+#define CH_ROLL 0
+#define CH_PITCH 1
 #if MOUNT == ENABLED
     RC_Channel_aux          rc_10;
     RC_Channel_aux          rc_11;
@@ -367,6 +433,8 @@ public:
     AC_PID                  pid_loiter_rate_lon;
     AC_PID                  pid_nav_lat;
     AC_PID                  pid_nav_lon;
+    AC_PID                  pidServoRoll;
+    AC_PID                  pidServoPitch;
 
     AC_PID                  pid_throttle;
     AC_PID                  pid_throttle_accel;
@@ -432,7 +500,9 @@ public:
         pi_stabilize_pitch      (STABILIZE_PITCH_P,     STABILIZE_PITCH_I,      STABILIZE_PITCH_IMAX * 100),
         pi_stabilize_yaw        (STABILIZE_YAW_P,       STABILIZE_YAW_I,        STABILIZE_YAW_IMAX * 100),
 
-        pi_alt_hold             (ALT_HOLD_P,            ALT_HOLD_I,             ALT_HOLD_IMAX)
+        pi_alt_hold             (ALT_HOLD_P,            ALT_HOLD_I,             ALT_HOLD_IMAX),
+        pidServoRoll        (SERVO_ROLL_P,    SERVO_ROLL_I,    SERVO_ROLL_D,    SERVO_ROLL_INT_MAX_CENTIDEGREE),
+        pidServoPitch       (SERVO_PITCH_P,   SERVO_PITCH_I,   SERVO_PITCH_D,   SERVO_PITCH_INT_MAX_CENTIDEGREE)
     {
     }
 };

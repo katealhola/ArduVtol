@@ -17,15 +17,17 @@
 #define AP_MOTORS_CH_TRI_YAW    CH_7
 // Tilt servu uses channel 8
 #define AP_MOTORS_CH_TRI_TILT    CH_5
+#define AP_MOTORS_CH_VTOL_AILE    CH_6
+#define AP_MOTORS_CH_VTOL_ELEV   CH_8
 
 /// @class      AP_MotorsTri
 class AP_MotorsTriVTOL : public AP_Motors {
 public:
 
     /// Constructor
-    AP_MotorsTriVTOL( uint8_t APM_version, APM_RC_Class* rc_out, RC_Channel* rc_roll, RC_Channel* rc_pitch, RC_Channel* rc_throttle, RC_Channel* rc_yaw, RC_Channel* rc_tail,RC_Channel* rc_tilt, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
+    AP_MotorsTriVTOL( uint8_t APM_version, APM_RC_Class* rc_out, RC_Channel* rc_roll, RC_Channel* rc_pitch, RC_Channel* rc_throttle, RC_Channel* rc_yaw, RC_Channel* rc_tail,RC_Channel* rc_tilt,RC_Channel* rc_aile,RC_Channel* rc_elev, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_Motors(APM_version, rc_out, rc_roll, rc_pitch, rc_throttle, rc_yaw, speed_hz),
-        _rc_tail(rc_tail),_rc_tilt(rc_tilt) {
+        _rc_tail(rc_tail),_rc_tilt(rc_tilt),_rc_aile(rc_aile),_rc_elev(rc_elev) {
     };
 
     // init
@@ -39,8 +41,9 @@ public:
 
     // get basic information about the platform
     virtual uint8_t         get_num_motors() {
-        return 4;
-    };                                                  // 3 motors + 1 tail servo
+        return 7;
+    };                       // 3 motors + 1 tail servo + 1 tilt servo + 2 aile/elev servos 
+	void output_servos();
 
     // motor test
     virtual void        output_test();
@@ -55,6 +58,8 @@ protected:
 
     RC_Channel*         _rc_tail;       // REV parameter used from this channel to determine direction of tail servo movement
     RC_Channel*         _rc_tilt;       // this channel for tilt servo
+    RC_Channel*         _rc_aile;       // this channel for left aileron/elevon servo
+    RC_Channel*         _rc_elev;       // this channel for right aileron/elevon servo
 };
 
 #endif  // AP_MOTORSTRIVTOL

@@ -16,7 +16,7 @@ static bool mavlink_active;
 #define CHECK_PAYLOAD_SIZE(id) if (payload_space < MAVLINK_MSG_ID_ ## id ## _LEN) return false
 
 // prototype this for use inside the GCS class
-static void gcs_send_text_fmt(const prog_char_t *fmt, ...);
+void gcs_send_text_fmt(const prog_char_t *fmt, ...);
 
 // gcs_check - throttles communication with ground station.
 // should be called regularly
@@ -2140,7 +2140,7 @@ static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
  *  only one fits in the queue, so if you send more than one before the
  *  last one gets into the serial buffer then the old one will be lost
  */
-static void gcs_send_text_fmt(const prog_char_t *fmt, ...)
+void gcs_send_text_fmt(const prog_char_t *fmt, ...)
 {
     char fmtstr[40];
     va_list arg_list;
