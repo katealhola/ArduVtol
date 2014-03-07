@@ -407,7 +407,7 @@ public:
 #define channel_pitch rc_2
 #define channel_throttle rc_3
 #define channel_rudder rc_4
-#define channel_tilt_out rc5
+#define channel_tilt_out rc_10	// JS140306 ???? (changed rc5 to rc_10)
 #define channel_roll_out rc_6
 #define channel_throttle_out rc_7
 #define channel_pitch_out rc_8

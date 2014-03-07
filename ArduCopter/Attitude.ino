@@ -1374,9 +1374,9 @@ static void set_servos(void)
             g.channel_roll_out.radio_out                = g.channel_roll.radio_in;
             g.channel_pitch_out.radio_out               = g.channel_pitch.radio_in;
         } else {
-            g.channel_roll_out.radio_out                = g.channel_pitch.radio_in - (BOOL_TO_SIGN(g.reverse_elevons) * g.channel_roll.radio_in);
-            g.channel_pitch_out.radio_out               = g.channel_pitch.radio_in + (BOOL_TO_SIGN(g.reverse_elevons) * g.channel_roll.radio_in);
-        }
+            g.channel_roll_out.radio_out                = (int16_t)(elevon1_trim -1500 + BOOL_TO_SIGN(g.reverse_ch1_elevon) * (float)g.channel_pitch.radio_in - (BOOL_TO_SIGN(g.reverse_elevons) * (float)g.channel_roll.radio_in) );
+            g.channel_pitch_out.radio_out               = (int16_t)(elevon2_trim -1500 + BOOL_TO_SIGN(g.reverse_ch2_elevon) * (float)g.channel_pitch.radio_in + (BOOL_TO_SIGN(g.reverse_elevons) * (float)g.channel_roll.radio_in) );
+        } 							// JS140306 inserted reverse ch1/2
    #if 0
         g.channel_throttle.radio_out    = g.channel_throttle.radio_in;
         g.channel_rudder.radio_out              = g.channel_rudder.radio_in;
@@ -1439,9 +1439,9 @@ static void set_servos(void)
 			}
 #endif
 
-            g.channel_roll_out.servo_out  =     elevon1_trim + (BOOL_TO_SIGN(g.reverse_ch1_elevon) * (ch1));
-            g.channel_pitch_out.servo_out =     elevon2_trim + (BOOL_TO_SIGN(g.reverse_ch2_elevon) * (ch2));
-        }
+            g.channel_roll_out.servo_out  =     (int16_t)( /* elevon1_trim -1500 + */ (BOOL_TO_SIGN(g.reverse_ch1_elevon) * (ch1)));
+            g.channel_pitch_out.servo_out =     (int16_t)( /* elevon2_trim -1500 + */ (BOOL_TO_SIGN(g.reverse_ch2_elevon) * (ch2)));
+        }							// trim doesn't work, since ...servo_out is in degrees -4500 - +4500 , not PWM (~900 - ~2100)
 
 #if OBC_FAILSAFE == ENABLED
         // this is to allow the failsafe module to deliberately crash 

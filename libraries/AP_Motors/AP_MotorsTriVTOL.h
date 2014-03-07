@@ -15,8 +15,8 @@
 
 // tail servo uses channel 7
 #define AP_MOTORS_CH_TRI_YAW    CH_7
-// Tilt servu uses channel 8
-#define AP_MOTORS_CH_TRI_TILT    CH_5
+// Tilt servu uses channel 10
+#define AP_MOTORS_CH_TRI_TILT    CH_10	// JS mod 140306: Output on ch10 (50Hz), Input ch5. CH5 output is 490Hz
 #define AP_MOTORS_CH_VTOL_AILE    CH_6
 #define AP_MOTORS_CH_VTOL_ELEV   CH_8
 
