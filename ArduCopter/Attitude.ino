@@ -1369,14 +1369,23 @@ static void set_servos(void)
     int16_t last_throttle = g.channel_throttle.radio_out;
 
     if(control_mode == MANUAL) {
-        // do a direct pass through of radio values
-        if (g.mix_mode == 0) {
+        // do a direct pass through of radio PWM values
+        if ( g.mix_mode == 0 ) {
             g.channel_roll_out.radio_out                = g.channel_roll.radio_in;
             g.channel_pitch_out.radio_out               = g.channel_pitch.radio_in;
         } else {
-            g.channel_roll_out.radio_out                = (int16_t)(elevon1_trim -1500 + BOOL_TO_SIGN(g.reverse_ch1_elevon) * (float)g.channel_pitch.radio_in - (BOOL_TO_SIGN(g.reverse_elevons) * (float)g.channel_roll.radio_in) );
-            g.channel_pitch_out.radio_out               = (int16_t)(elevon2_trim -1500 + BOOL_TO_SIGN(g.reverse_ch2_elevon) * (float)g.channel_pitch.radio_in + (BOOL_TO_SIGN(g.reverse_elevons) * (float)g.channel_roll.radio_in) );
-        } 							// JS140306 inserted reverse ch1/2
+            //JS140308 Had to go from PWM -> angle -> PWM, since background updates seem to destroy radio_in values, or something?
+            g.channel_roll_out.servo_out = BOOL_TO_SIGN(g.reverse_ch1_elevon)*(/*elevon1_trim-1500*/ + g.channel_pitch.pwm_to_angle() - BOOL_TO_SIGN(g.reverse_elevons)*g.channel_roll.pwm_to_angle());
+            g.channel_pitch_out.servo_out = BOOL_TO_SIGN(g.reverse_ch2_elevon)*(/*elevon2_trim-1500*/ + g.channel_pitch.pwm_to_angle() + BOOL_TO_SIGN(g.reverse_elevons)*g.channel_roll.pwm_to_angle());
+            g.channel_roll_out.calc_pwm();
+            g.channel_pitch_out.calc_pwm();
+
+            /*            
+            g.channel_roll_out.radio_out                = (int16_t)( elevon1_trim -1500 + BOOL_TO_SIGN(g.reverse_ch1_elevon) * (g.channel_pitch.radio_in-1500) - (BOOL_TO_SIGN(g.reverse_elevons) * (g.channel_roll.radio_in-1500)) );
+            g.channel_pitch_out.radio_out               = (int16_t)( elevon2_trim -1500 + BOOL_TO_SIGN(g.reverse_ch2_elevon) * (g.channel_pitch.radio_in-1500) + (BOOL_TO_SIGN(g.reverse_elevons) * (g.channel_roll.radio_in-1500)) );
+            */
+
+        } 
    #if 0
         g.channel_throttle.radio_out    = g.channel_throttle.radio_in;
         g.channel_rudder.radio_out              = g.channel_rudder.radio_in;
@@ -1412,9 +1421,9 @@ static void set_servos(void)
           //  RC_Channel_aux::set_servo_out(RC_Channel_aux::k_aileron_with_input, g.channel_roll.servo_out);
         }else{
             /*Elevon mode*/
-            float ch1;
-            float ch2;
-            // Convert to radio_out PWM
+            int16_t ch1;
+            int16_t ch2;
+            // Convert to radio_out angle (not PWM)
             ch1 = g.channel_pitch_out.servo_out - (BOOL_TO_SIGN(g.reverse_elevons) * g.channel_roll_out.servo_out);
             ch2 = g.channel_pitch_out.servo_out + (BOOL_TO_SIGN(g.reverse_elevons) * g.channel_roll_out.servo_out);
 #if 0
@@ -1463,8 +1472,8 @@ static void set_servos(void)
             g.channel_roll_out.calc_pwm();
             g.channel_pitch_out.calc_pwm();
        }
-
 */
+
         static int r;
 if(!(r++&63))gcs_send_text_fmt(PSTR("pitch roll  %d %d %d %d\n"),g.channel_pitch_out.servo_out,g.channel_roll_out.servo_out,g.channel_pitch_out.radio_out,g.channel_roll_out.radio_out);
        // g.channel_rudder.calc_pwm();
